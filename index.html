@@ -10,106 +10,304 @@
 
     <style>
         :root {
-            --primary-color: #0055A4; --secondary-color: #333e4e; --light-grey: #f8f9fa;
-            --border-color: #e2e8f0; --background-gradient: linear-gradient(120deg, #f0f4f8 0%, #e2e8f0 100%);
-            --shadow-color: rgba(0, 0, 0, 0.1); --link-color: #2b6cb0;
-            --font-sans: 'Open Sans', sans-serif; --correct-color: #28a745; --incorrect-color: #dc3545;
+            --primary-color: #0055A4; /* Bleu France */
+            --secondary-color: #333e4e; /* Gris foncé */
+            --light-grey: #f8f9fa;
+            --border-color: #e2e8f0;
+            --background-gradient: linear-gradient(120deg, #f0f4f8 0%, #e2e8f0 100%);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --link-color: #2b6cb0; /* Bleu lien */
+            --font-sans: 'Open Sans', sans-serif;
+            --correct-color: #28a745; /* Vert succès */
+            --incorrect-color: #dc3545; /* Rouge erreur */
         }
         body {
-            font-family: var(--font-sans); line-height: 1.6; margin: 0; padding: 0;
-            background: var(--background-gradient); color: var(--secondary-color); min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center; padding: 20px 20px 30px 20px;
-            box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: var(--background-gradient);
+            color: var(--secondary-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 20px 30px 20px; /* Espace autour */
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .slides-container {
-            position: relative; background: linear-gradient(180deg, #ffffff 95%, #fdfdff 100%);
-            border-radius: 15px; box-shadow: 0 10px 25px -8px var(--shadow-color); padding: 30px 50px 80px 50px;
-            width: 95%; max-width: 1200px; min-height: 900px; overflow: hidden; margin-bottom: 30px;
+            position: relative;
+            background: linear-gradient(180deg, #ffffff 95%, #fdfdff 100%); /* Blanc légèrement cassé */
+            border-radius: 15px; /* Bords arrondis */
+            box-shadow: 0 10px 25px -8px var(--shadow-color);
+            padding: 30px 50px 80px 50px; /* Espace intérieur (plus bas pour nav) */
+            width: 95%;
+            max-width: 1200px; /* Largeur max */
+            min-height: 600px; /* Hauteur min */
+            overflow: hidden; /* Masque le contenu hors cadre */
+            margin-bottom: 30px;
         }
+        /* Styles pour le mode plein écran */
+        .slides-container.is-fullscreen {
+             width: 100%;
+             height: 100%;
+             max-width: none;
+             min-height: 100vh; /* Prend toute la hauteur */
+             border-radius: 0; /* Optionnel: enlever les bords arrondis */
+             margin-bottom: 0;
+             box-shadow: none;
+             padding-bottom: 80px; /* Garder l'espace pour la nav */
+             box-sizing: border-box;
+        }
+        /* Ajustement du body en plein écran pour éviter les marges/padding */
+        body:has(.slides-container.is-fullscreen) {
+            padding: 0;
+        }
+
         .slide {
-            position: absolute; top: 30px; left: 50px; right: 50px; bottom: 80px;
-            opacity: 0; visibility: hidden; transition: opacity 0.6s ease-in-out, visibility 0.6s;
-            overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--primary-color) var(--light-grey);
-            padding-right: 5px;
+            position: absolute;
+            top: 30px; /* Match padding top container */
+            left: 50px; /* Match padding left container */
+            right: 50px; /* Match padding right container */
+            bottom: 80px; /* Match padding bottom container */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease-in-out, visibility 0.6s;
+            overflow-y: auto; /* Scroll si contenu dépasse */
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--light-grey);
+            padding-right: 5px; /* Espace pour scrollbar */
         }
         .slide::-webkit-scrollbar { width: 8px; }
         .slide::-webkit-scrollbar-track { background: var(--light-grey); border-radius: 4px; }
         .slide::-webkit-scrollbar-thumb { background-color: var(--primary-color); border-radius: 4px; border: 2px solid var(--light-grey); }
-        .slide.active-slide { opacity: 1; visibility: visible; z-index: 1; }
+
+        .slide.active-slide {
+            opacity: 1;
+            visibility: visible;
+            z-index: 1; /* Pour s'assurer qu'elle est au-dessus */
+        }
 
         /* --- Style slide de titre --- */
-        .slide.title-slide { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%; padding: 20px; box-sizing: border-box; }
-        .slide.title-slide h2 { font-size: 3.2em; font-weight: 300; color: var(--primary-color); border-bottom: none; margin-top: 0; margin-bottom: 0.4em; text-transform: none; animation: slideUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; opacity: 0; }
-        .slide.title-slide h3 { font-size: 1.6em; font-weight: 300; color: var(--secondary-color); margin-top: 0; margin-bottom: 2em; text-transform: none; animation: fadeInContent 0.7s ease-out 0.4s forwards; opacity: 0; }
-        .slide.title-slide .presenter-info { margin-top: auto; padding-bottom: 10px; font-size: 0.95em; color: #555; animation: fadeInContent 0.7s ease-out 0.6s forwards; opacity: 0; }
-        .slide.title-slide .presenter-info p { margin-bottom: 0.4em; line-height: 1.5; }
+        .slide.title-slide {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%; /* Prend toute la hauteur dispo */
+            padding: 20px;
+            box-sizing: border-box; /* Inclut padding dans la hauteur */
+        }
+        .slide.title-slide h2 {
+            font-size: 3.2em;
+            font-weight: 300;
+            color: var(--primary-color);
+            border-bottom: none;
+            margin-top: 0;
+            margin-bottom: 0.4em;
+            text-transform: none;
+            animation: slideUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            opacity: 0;
+        }
+        .slide.title-slide h3 {
+            font-size: 1.6em;
+            font-weight: 300;
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 2em;
+            text-transform: none;
+            animation: fadeInContent 0.7s ease-out 0.4s forwards;
+            opacity: 0;
+        }
+        .slide.title-slide .presenter-info {
+            margin-top: auto; /* Pousse en bas */
+            padding-bottom: 10px; /* Petit espace avant le bas */
+            font-size: 0.95em;
+            color: #555;
+            animation: fadeInContent 0.7s ease-out 0.6s forwards;
+            opacity: 0;
+        }
+        .slide.title-slide .presenter-info p { margin-bottom: 0.4em; line-height: 1.5;}
         .slide.title-slide .presenter-info strong { font-weight: 400; color: #444; }
 
         /* ---- Styles généraux pour les autres slides ---- */
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) h2 { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 8px; margin-top: 0; margin-bottom: 1.2em; font-weight: 400; font-size: 1.8em; text-transform: none; animation: slideUp 0.7s ease-out forwards; opacity: 0; }
-        .active-slide:not(.title-slide):not(#slide-14):not(#slide-15) h2 { opacity: 1; }
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) h3 { color: var(--link-color); margin-top: 1.5em; margin-bottom: 0.8em; font-weight: 600; font-size: 1.3em; text-transform: lowercase; }
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) h3::first-letter { text-transform: uppercase; }
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) ul { list-style: none; padding-left: 0; margin-left: 5px; margin-top: 0; }
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) li { padding-left: 1.8em; position: relative; margin-bottom: 0.6em; }
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) li::before { content: '•'; color: var(--primary-color); font-size: 1.4em; position: absolute; left: 0; top: -0.05em; line-height: 1; }
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) ul ul { margin-top: 0.5em; margin-left: 10px; }
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) ul ul li::before { content: '◦'; font-size: 1.2em; }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) h2 { /* Ajusté pour exclure quiz lock/quiz */
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            margin-top: 0;
+            margin-bottom: 1.2em;
+            font-weight: 400;
+            font-size: 1.8em;
+            text-transform: none;
+            animation: slideUp 0.7s ease-out forwards;
+            opacity: 0;
+        }
+        .active-slide:not(.title-slide):not(#slide-15):not(#slide-16) h2 {
+            opacity: 1;
+        }
 
-        /* --- Ajout pour capitaliser après une puce --- */
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) li::first-letter {
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) h3 {
+            color: var(--link-color);
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            font-weight: 600;
+            font-size: 1.3em;
+            text-transform: lowercase;
+        }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) h3::first-letter {
             text-transform: uppercase;
         }
-        /* --------------------------------------------- */
 
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) p { margin-bottom: 1.0em; margin-top: 0; }
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) strong { font-weight: 600; color: #1a202c; }
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) .perspective { background-color: #e9f2fa; border-left: 4px solid var(--primary-color); padding: 15px 20px; margin: 1.5em 0; font-style: normal; border-radius: 6px; color: #2c5282; }
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) .perspective p { margin: 0; line-height: 1.6; }
-        .slide:not(.title-slide):not(#slide-14):not(#slide-15) .perspective strong { color: #1c4a7e; font-weight: 600; }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) ul {
+            list-style: none;
+            padding-left: 0;
+            margin-left: 5px;
+            margin-top: 0;
+        }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) li {
+            padding-left: 1.8em;
+            position: relative;
+            margin-bottom: 0.6em;
+        }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) li::before {
+            content: '•';
+            color: var(--primary-color);
+            font-size: 1.4em;
+            position: absolute;
+            left: 0;
+            top: -0.05em;
+            line-height: 1;
+        }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) li::first-letter {
+            text-transform: uppercase;
+        }
 
-        /* --- Styles Slide de Verrouillage (Slide 14) --- */
-        #slide-14 { text-align: center; padding-top: 40px; }
-        #slide-14 h2 { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 8px; margin-top: 0; margin-bottom: 2em; font-weight: 400; font-size: 1.8em; text-transform: none; }
-        #slide-14 p { margin-bottom: 1.5em; }
-        #slide-14 input[type="password"] { padding: 10px; font-size: 1.1em; width: 250px; max-width: 80%; border: 1px solid var(--border-color); border-radius: 5px; margin-bottom: 1em; }
-        #slide-14 button#unlockQuizBtn { padding: 10px 25px; font-size: 1.1em; border: none; border-radius: 5px; background-color: var(--primary-color); color: white; cursor: pointer; transition: background-color 0.3s; }
-        #slide-14 button#unlockQuizBtn:hover { background-color: #003d7a; }
-        #passwordFeedback { margin-top: 1em; color: var(--incorrect-color); font-weight: bold; height: 1.5em; /* Reserve space */ }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) ul ul {
+             margin-top: 0.5em;
+             margin-left: 10px;
+        }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) ul ul li::before {
+             content: '◦';
+             font-size: 1.2em;
+        }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) p {
+            margin-bottom: 1.0em;
+            margin-top: 0;
+        }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) strong {
+            font-weight: 600;
+            color: #1a202c;
+        }
 
-        /* --- Styles Questionnaire Interactif (Slide 15) --- */
-        #slide-15 h2 { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 8px; margin-top: 0; margin-bottom: 1.5em; font-weight: 400; font-size: 1.8em; text-transform: none; }
-        #quizForm.quiz-blurred { filter: blur(4px); pointer-events: none; /* Empêche interaction avec le fond flou */ }
-        .quiz-question { margin-bottom: 1.8em; padding-bottom: 1.8em; border-bottom: 1px dashed var(--border-color); }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) .perspective {
+            background-color: #e9f2fa;
+            border-left: 4px solid var(--primary-color);
+            padding: 15px 20px;
+            margin: 1.5em 0;
+            font-style: normal;
+            border-radius: 6px;
+            color: #2c5282;
+        }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) .perspective p {
+            margin: 0;
+            line-height: 1.6;
+        }
+        .slide:not(.title-slide):not(#slide-15):not(#slide-16) .perspective strong {
+            color: #1c4a7e;
+            font-weight: 600;
+        }
+
+        /* --- Styles Slide de Verrouillage (Nouvel index : slide-15) --- */
+        #slide-15 { text-align: center; padding-top: 40px; }
+        #slide-15 h2 {
+            color: var(--primary-color); border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px; margin-top: 0; margin-bottom: 2em;
+            font-weight: 400; font-size: 1.8em; text-transform: none;
+        }
+        #slide-15 p { margin-bottom: 1.5em; }
+        #slide-15 input[type="password"] {
+            padding: 10px; font-size: 1.1em; width: 250px; max-width: 80%;
+            border: 1px solid var(--border-color); border-radius: 5px; margin-bottom: 1em;
+        }
+        #slide-15 button#unlockQuizBtn {
+            padding: 10px 25px; font-size: 1.1em; border: none; border-radius: 5px;
+            background-color: var(--primary-color); color: white; cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #slide-15 button#unlockQuizBtn:hover { background-color: #003d7a; }
+        #passwordFeedback {
+            margin-top: 1em; color: var(--incorrect-color); font-weight: bold;
+            height: 1.5em; /* Reserve space */
+        }
+
+        /* --- Styles Questionnaire Interactif (Nouvel index : slide-16) --- */
+        #slide-16 h2 {
+            color: var(--primary-color); border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px; margin-top: 0; margin-bottom: 1.5em;
+            font-weight: 400; font-size: 1.8em; text-transform: none;
+        }
+        #quizForm.quiz-blurred {
+            filter: blur(4px);
+            pointer-events: none;
+        }
+        .quiz-question {
+            margin-bottom: 1.8em; padding-bottom: 1.8em;
+            border-bottom: 1px dashed var(--border-color);
+        }
         .quiz-question:last-of-type { border-bottom: none; margin-bottom: 1em; }
-        .quiz-question p { font-weight: 600; margin-bottom: 1em; color: #2d3748; }
+        .quiz-question p {
+            font-weight: 600; margin-bottom: 1em; color: #2d3748;
+        }
         .quiz-options { padding-left: 10px; margin: 0; }
         .quiz-options div { margin-bottom: 0.7em; }
         .quiz-options input[type="radio"] { margin-right: 8px; vertical-align: middle; }
-        .quiz-options label { font-weight: 400; cursor: pointer; display: inline-block; padding: 2px 5px; border-radius: 3px; transition: background-color 0.3s; vertical-align: middle; }
-        .quiz-options label.correct-answer { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .quiz-options label.incorrect-answer { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .feedback { display: block; margin-top: 0.8em; font-weight: 600; font-size: 0.9em; height: 1.2em; }
+        .quiz-options label {
+            font-weight: 400; cursor: pointer; display: inline-block;
+            padding: 2px 5px; border-radius: 3px; transition: background-color 0.3s;
+            vertical-align: middle;
+        }
+        .quiz-options label.correct-answer {
+            background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+        }
+        .quiz-options label.incorrect-answer {
+            background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;
+        }
+        .feedback {
+            display: block; margin-top: 0.8em; font-weight: 600; font-size: 0.9em;
+            height: 1.2em;
+        }
         .feedback.correct { color: var(--correct-color); }
         .feedback.incorrect { color: var(--incorrect-color); }
+
         #quizButtons { margin-top: 25px; text-align: center; }
-        #quizButtons button { padding: 10px 20px; font-size: 1em; margin: 0 10px; border: none; border-radius: 5px; cursor: pointer; background-color: var(--primary-color); color: white; transition: background-color 0.3s, opacity 0.3s; }
+        #quizButtons button {
+            padding: 10px 20px; font-size: 1em; margin: 0 10px; border: none;
+            border-radius: 5px; cursor: pointer; background-color: var(--primary-color);
+            color: white; transition: background-color 0.3s, opacity 0.3s;
+        }
         #quizButtons button:hover { background-color: #003d7a; }
         #quizButtons button#resetQuizBtn { background-color: #6c757d; }
         #quizButtons button#resetQuizBtn:hover { background-color: #5a6268; }
         #quizButtons button:disabled { opacity: 0.5; cursor: not-allowed; }
-        #quizResult { margin-top: 25px; font-weight: bold; font-size: 1.2em; text-align: center; padding: 15px; border-radius: 5px; }
+
+        #quizResult {
+            margin-top: 25px; font-weight: bold; font-size: 1.2em;
+            text-align: center; padding: 15px; border-radius: 5px;
+        }
         #quizResult.passed { background-color: #d4edda; color: #155724; }
         #quizResult.failed { background-color: #f8d7da; color: #721c24; }
 
-        /* --- Styles pour la Modale Score --- */
         .modal-overlay {
-            display: none; /* Caché par défaut */
-            position: fixed; /* Positionné par rapport à la fenêtre */
+            display: none;
+            position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6); /* Fond semi-transparent */
-            z-index: 1000; /* Au-dessus de tout */
-            display: flex; /* Utiliser flex pour centrer */
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            display: flex;
             justify-content: center;
             align-items: center;
         }
@@ -119,8 +317,8 @@
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             text-align: center;
-            position: relative; /* Pour positionner le bouton de fermeture */
-            min-width: 300px; /* Largeur minimale */
+            position: relative;
+            min-width: 300px;
             max-width: 90%;
         }
         .modal-content h3 {
@@ -128,7 +326,7 @@
              color: var(--primary-color);
              margin-bottom: 20px;
         }
-        .modal-content #finalScoreText { /* Style spécifique pour le texte du score */
+        .modal-content #finalScoreText {
             font-size: 1.4em;
             font-weight: bold;
             margin-bottom: 25px;
@@ -145,19 +343,77 @@
         .close-modal:hover { color: #333; }
 
         /* ---- Navigation Interne ---- */
-        .navigation { text-align: center; position: absolute; bottom: 30px; left: 50px; right: 50px; z-index: 10; }
-        .navigation button { background: none; border: none; font-family: var(--font-sans); font-size: 2.2em; color: #c0c0c0; cursor: pointer; padding: 0 15px; transition: color 0.2s ease-out, transform 0.1s ease; line-height: 1; margin: 0 5px; vertical-align: middle; }
-        .navigation button:hover { color: var(--primary-color); transform: scale(1.1); }
-        .navigation button:active { transform: scale(1.0); }
-        .navigation button:disabled { color: #e0e0e0; cursor: not-allowed; opacity: 0.6; transform: none; }
-        .slide-counter { display: inline-block; color: #888; font-size: 0.85em; vertical-align: middle; margin: 0 15px; font-weight: 300; min-width: 80px; text-align: center; }
+        .navigation {
+            text-align: center;
+            position: absolute;
+            bottom: 30px;
+            left: 50px;
+            right: 50px;
+            z-index: 10;
+        }
+        .navigation button {
+            background: none;
+            border: none;
+            font-family: var(--font-sans);
+            font-size: 2.2em;
+            color: #c0c0c0;
+            cursor: pointer;
+            padding: 0 15px;
+            transition: color 0.2s ease-out, transform 0.1s ease;
+            line-height: 1;
+            margin: 0 5px;
+            vertical-align: middle;
+        }
+        .navigation button:hover {
+            color: var(--primary-color);
+            transform: scale(1.1);
+        }
+        .navigation button:active {
+             transform: scale(1.0);
+        }
+        .navigation button:disabled {
+            color: #e0e0e0;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+        }
+        .slide-counter {
+            display: inline-block;
+            color: #888;
+            font-size: 0.85em;
+            vertical-align: middle;
+            margin: 0 15px;
+            font-weight: 300;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        #fullscreenBtn { /* Style du bouton plein écran */
+            background: none; border: none; font-family: var(--font-sans);
+            font-size: 1.8em; color: #c0c0c0; cursor: pointer; padding: 0 10px;
+            transition: color 0.2s ease-out, transform 0.1s ease; line-height: 1;
+            margin: 0 5px; vertical-align: middle;
+        }
+        #fullscreenBtn:hover { color: var(--primary-color); transform: scale(1.1); }
+        #fullscreenBtn:active { transform: scale(1.0); }
 
         /* ---- Animations ---- */
-        @keyframes slideUp { from { transform: translateY(25px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeInContent { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .active-slide:not(.title-slide):not(#slide-14):not(#slide-15) > *:not(h2):not(.navigation) { animation: fadeInContent 0.5s ease-out 0.2s forwards; opacity: 0; }
-        .active-slide:not(.title-slide):not(#slide-14):not(#slide-15) h3 { animation: fadeInContent 0.5s ease-out 0.2s forwards; opacity: 0; }
-
+        @keyframes slideUp {
+            from { transform: translateY(25px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeInContent {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .active-slide:not(.title-slide):not(#slide-15):not(#slide-16) > *:not(h2):not(.navigation) {
+            animation: fadeInContent 0.5s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+        .active-slide:not(.title-slide):not(#slide-15):not(#slide-16) h3 {
+            animation: fadeInContent 0.5s ease-out 0.2s forwards;
+            opacity: 0;
+        }
     </style>
 </head>
 <body>
@@ -167,105 +423,356 @@
     <!-- SLIDE 1 : PAGE DE TITRE -->
     <div class="slide active-slide title-slide" id="slide-1">
         <h2>La Médiation Judiciaire</h2>
-        <h3>Un aperçu du régime juridique et de ses applications pratiques</h3>
-        <div class="presenter-info">
-            <p><strong>Présentateur :</strong> [Votre Nom/Organisation]</p>
-            <p><strong>Date :</strong> [Date de la présentation]</p>
-        </div>
+        <h3>Régime juridique et applications</h3>
+       
     </div>
     <!-- SLIDE 1 END -->
 
-    <!-- SLIDES 2 à 8 -->
-    <div class="slide" id="slide-2"><h2>Introduction : définition et cadre général</h2><h3>Qualification juridique :</h3><ul><li>constitue une modalité spécifique de la conciliation, qualifiée de <strong>'conciliation judiciaire déléguée'</strong> par la Cour de cassation (Civ. 2ème, 16 juil. 1993, n°91-15.332).</li><li>elle se distingue par son caractère <strong>incident</strong>, intervenant en cours d'instance et non préalablement à celle-ci.</li></ul><h3>Définition opérationnelle :</h3><ul><li>désigne le processus amiable de résolution des litiges facilité par l'intervention d'un <strong>tiers qualifié</strong>, le médiateur, désigné par le juge saisi du litige.</li><li>le médiateur 'a pour mission d'entendre les parties et de confronter leurs points de vue pour leur permettre de trouver une solution au conflit qui les oppose' (art. 131-1 cpc).</li></ul><h3>Champ d'application temporel :</h3><ul><li>peut être ordonnée à <strong>tout stade de la procédure</strong> (première instance, appel, référé, mise en état, cassation).</li></ul><h3>Fondements normatifs :</h3><ul><li>un régime juridique propre a été instauré par la loi n° 95-125 du 8 février 1995 et le décret n° 96-652 du 22 juillet 1996.</li><li>articles <strong>131-1 à 131-15</strong> du code de procédure civile (cpc), complétés par des réformes ultérieures (notamment décrets de 2015, 2019, 2022).</li></ul><div class="perspective"><p><strong>Perspective pratique (F. Hammoudi) :</strong> Elle s'inscrit en complément de la décision juridictionnelle, visant une issue amiable potentiellement plus satisfaisante et rapide ; l'objectif est de réduire la souffrance inhérente au processus judiciaire et de permettre une résolution constructive, mutuellement acceptable par les parties.</p></div></div>
-    <div class="slide" id="slide-3"><h2>1. Fondements et nature : positionnement et distinction</h2><h3>1.1 Positionnement et distinction :</h3><ul><li>la médiation judiciaire constitue une modalité de la <strong>conciliation incidente déléguée</strong>.</li><li>les <strong>distinctions clés avec la conciliation déléguée</strong> au conciliateur de justice reposent sur un double critère :<ul><li><strong>a) le critère économique :</strong> la médiation est une mission <strong>rémunérée</strong> (provision, répartition des frais, art. 22-2 loi n° 95-125), tandis que la conciliation est <strong>bénévole</strong> (art. R. 131-12 coj).</li><li><strong>b) les critères personnel et temporel :</strong> le médiateur est un tiers <strong>ad hoc</strong> choisi pour un litige spécifique (mission <strong>ponctuelle</strong>), alors que le conciliateur exerce une mission <strong>pérenne</strong> et est intégré fonctionnellement à la juridiction.</li></ul></li></ul><div class="perspective"><p><strong>Perspective pratique (F. Hammoudi) :</strong> La désignation <em>ad hoc</em> par ordonnance judiciaire, souvent via la liste de la cour d'appel, est confirmée ; le mécanisme de provision initiale est contractualisé avec les parties dès l'entrée en médiation.</p></div></div>
-     <div class="slide" id="slide-4"><h2>1. Fondements et nature : le cadre déontologique et qualitatif</h2><h3>1.2 Le cadre déontologique et qualitatif :</h3><ul><li>une exigence renforcée de déontologie accompagne la reconnaissance des modes amiables, visant la <strong>qualité</strong> et la <strong>fiabilité</strong> du processus.</li><li>le médiateur peut être une <strong>personne physique ou morale</strong> (ex: association) (art. 131-4 CPC). Si une personne morale est désignée, son représentant légal soumet le nom de la personne physique exécutant la mission à l'agrément du juge.</li><li>les <strong>exigences relatives au médiateur (personne physique)</strong> (art. 131-5 CPC) incluent :<ul><li>Ne pas avoir fait l'objet de condamnation, incapacité ou déchéance mentionnées sur le bulletin n°2 du casier judiciaire.</li><li>Posséder la <strong>qualification requise</strong> eu égard à la nature du litige.</li><li>Justifier d'une <strong>formation ou d'une expérience adaptée</strong> à la pratique de la médiation.</li><li>Présenter les garanties d'<strong>indépendance</strong> nécessaires à l'exercice de la médiation.</li></ul></li><li>la question des <strong>listes de médiateurs</strong> : des listes indicatives sont établies auprès de chaque cour d'appel (Loi 18 nov. 2016 ; Décret 9 oct. 2017) pour faciliter le choix du juge et sécuriser le processus par une vérification préalable des garanties.</li></ul><div class="perspective"><p><strong>Perspective pratique (F. Hammoudi) :</strong> La primauté accordée à la formation (initiale, continue, analyse de pratique) et la capacité à maintenir une neutralité/impartialité absolue constituent l'application concrète de ces exigences légales. L'inscription sur les listes apparaît comme un gage de reconnaissance.</p></div></div>
-    <div class="slide" id="slide-5"><h2>2. Régime juridique (droit commun) : mise en œuvre et champ d'application</h2><h3>2.1.1 conditions de mise en œuvre :</h3><ul><li><strong>Principe (art. 131-1 cpc) :</strong> la médiation est ordonnée par le juge saisi, <strong>après recueil de l'accord exprès des parties</strong>, condition essentielle mentionnée dans la décision (art. 131-6 cpc).</li><li><strong>Tempérament (art. 127-1 cpc, mod. décret du 25 fév. 2022) :</strong> le juge peut <strong>enjoindre</strong> aux parties de rencontrer un médiateur pour une <strong>séance d'information</strong>, même sans accord préalable sur la mesure elle-même.</li></ul><h3>2.1.2 champ d'application matériel et procédural :</h3><ul><li><strong>matériel :</strong> le recours est largement ouvert (matière civile, commerciale, sociale, rurale, prud'homale - art. 131-1 al. 3 cpc).</li><li><strong>procédural :</strong> devant toute juridiction de l'ordre judiciaire, à tout stade (y compris référé et cassation - art. 1012 cpc).</li><li><strong>objet :</strong> peut porter sur <strong>tout ou partie du litige</strong> (art. 131-2 cpc).</li></ul><div class="perspective"><p><strong>Perspective pratique (F. Hammoudi) :</strong> Le processus standard demeure initié par l'accord des parties ; la gestion de l'injonction d'information requiert de clarifier son objectif et le caractère volontaire de la poursuite éventuelle de la médiation. L'intervention en appel est fréquente lorsque le conflit persiste.</p></div></div>
-    <div class="slide" id="slide-6"><h2>2. Régime juridique (droit commun) : principes directeurs du processus</h2><h3>2.1.3 principes directeurs fondamentaux :</h3><ul><li><strong>a) le principe de confidentialité (art. 131-14 cpc) :</strong> élément essentiel garantissant la confiance et la liberté de parole. les constatations et déclarations recueillies ne sont ni divulguées ni utilisées hors médiation (sauf accord exprès ou exceptions légales tenant notamment à l'ordre public).<ul><li>corollaire : interdiction pour le médiateur d'accomplir une mesure d'instruction dans la même affaire (art. 131-8 al. 2 cpc).</li></ul></li><li><strong>b) l'absence de pouvoir d'instruction propre (art. 131-8 cpc) :</strong> le médiateur n'est investi d'aucun pouvoir d'enquête ou d'expertise. il peut entendre des tiers consentants avec l'accord des parties.</li></ul><div class="perspective"><p><strong>Perspective pratique (F. Hammoudi) :</strong> La confidentialité est présentée comme un pilier absolu, explicitée et contractualisée dès l'initiation. Le rôle du médiateur est clairement défini comme celui d'un facilitateur neutre, distinct de toute fonction d'investigation ou de décision.</p></div></div>
-    <div class="slide" id="slide-7"><h2>2. Régime juridique (droit commun) : déroulement de la mesure</h2><h3>2.1.4 déroulement :</h3><ul><li><strong>a) la décision ordonnant la médiation (art. 131-6 cpc) :</strong> désigne le médiateur, fixe la durée initiale (max. 3 mois, renouvelable une fois sur demande motivée - art. 131-3 cpc), la date de rappel à l'audience, le montant de la provision et le délai de consignation.</li><li><strong>b) la provision et sa consignation :</strong> effectuée directement auprès du médiateur (art. 131-6 al. 2 cpc). le défaut de consignation intégrale dans le délai imparti entraîne la <strong>caducité</strong> de la décision (art. 131-6 al. 3 cpc).</li><li><strong>c) rôle des parties et assistance (art. 131-7 cpc) :</strong> les parties peuvent être assistées par toute personne habilitée à le faire devant la juridiction ayant ordonné la mesure.</li><li><strong>d) information du juge (art. 131-9 cpc) :</strong> le médiateur doit tenir le juge informé des difficultés rencontrées dans l'accomplissement de sa mission.</li></ul><div class="perspective"><p><strong>Perspective pratique (F. Hammoudi) :</strong> La séance initiale est cruciale pour l'établissement du cadre contractuel et déontologique. Le délai imparti est perçu comme un levier dynamique. Les avocats interviennent en qualité de conseil des parties.</p></div></div>
-    <div class="slide" id="slide-8"><h2>2. Régime juridique (droit commun) : fin, issue et effets procéduraux</h2><h3>2.1.5 fin et issue de la médiation :</h3><ul><li><strong>a) cessation anticipée (art. 131-10 cpc) :</strong> possible à tout moment à l'initiative du juge, d'une partie ou du médiateur.</li><li><strong>b) issue (art. 131-11 cpc) :</strong> le médiateur informe le juge par écrit de l'issue (<strong>accord total/partiel ou désaccord</strong>), dans le respect strict de la confidentialité des échanges.</li><li><strong>c) l'homologation de l'accord (art. 131-12 cpc) :</strong> sur demande des parties, le juge peut homologuer l'accord pour lui conférer <strong>force exécutoire</strong> (relevant de la matière gracieuse, le juge dispose d'un pouvoir d'appréciation).</li></ul><h3>2.1.6 effets procéduraux : interruption des délais d'appel (art. 910-2 cpc) :</h3><ul><li>la décision ordonnant la médiation (art. 131-1 cpc) ou l'injonction de rencontrer un médiateur (art. 127-1 cpc) <strong>interrompt les délais impartis</strong> pour conclure et former appel incident, et ce, jusqu'à l'expiration de la mission du médiateur.</li></ul><div class="perspective"><p><strong>Perspective pratique (F. Hammoudi) :</strong> La communication finale au juge est limitée à l'issue factuelle. L'accord est formalisé et soumis à l'homologation par les parties et leurs conseils. Le taux de succès, incluant les améliorations relationnelles, est estimé élevé (~75-80%).</p></div></div>
-    <!-- SLIDE 9 MODIFIEE -->
-    <div class="slide" id="slide-9">
-        <h2>2. Le régime spécifique de la médiation familiale</h2>
-        <h3>2.2 le régime spécifique :</h3>
-         <ul>
-            <li><strong>Contexte et finalités propres (2.2.1) :</strong> Sensibilité particulière. Vise l'exercice <strong>consensuel de l'autorité parentale</strong> et la <strong>restauration de la communication</strong>, au-delà du juridique.</li>
-            <li><strong>Fondements légaux spécifiques (2.2.2) :</strong> Code civil (art. 255 - divorce ; art. 373-2-10 - autorité parentale).</li>
-            <li><strong>Modalités de mise en œuvre (JAF - art. 373-2-10 c.civ) (2.2.3) :</strong> Le JAF peut <strong>proposer</strong> (accord requis) ou <strong>enjoindre</strong> une rencontre d'information (sauf exceptions: violences, emprise).</li>
-            <li><strong>Exigences de formation renforcées (2.2.4) :</strong> <strong>Diplôme d'État de médiateur familial (DE MF)</strong> et référentiel spécifique.</li>
+    <!-- SLIDE 2 : Introduction -->
+    <div class="slide" id="slide-2">
+        <h2>Introduction : Définition et Cadre Général</h2>
+        <h3>Qualification juridique :</h3>
+        <ul>
+            <li>Constitue une modalité spécifique de la conciliation, qualifiée de <strong>'conciliation judiciaire déléguée'</strong> par la Cour de cassation (Civ. 2ème, 16 juil. 1993, n°91-15.332).</li>
+            <li>Se distingue par son caractère <strong>incident</strong> : elle intervient en cours d'instance (et non préalablement).</li>
         </ul>
-        <!-- La perspective vide a été supprimée -->
+        <h3>Définition opérationnelle (Art. 131-1 CPC) :</h3>
+        <ul>
+            <li>Processus amiable facilité par un <strong>tiers qualifié</strong> (le médiateur) désigné par le juge.</li>
+            <li>Mission : "entendre les parties et confronter leurs points de vue pour leur permettre de trouver une solution au conflit qui les oppose".</li>
+            <li>Le médiateur peut, le cas échéant, faire un projet de solution soumis aux parties.</li>
+        </ul>
+        <h3>Contexte :</h3>
+        <ul>
+            <li>Essor des Modes Amiables de Règlement des Différends (MARD).</li>
+            <li>Intégration croissante de l'amiable au cœur du processus juridictionnel (ex: ARA, césure).</li>
+            <li>Rôle du Conseil National de la Médiation (CNM) depuis juin 2023.</li>
+        </ul>
+        <h3>Fondements normatifs principaux :</h3>
+        <ul>
+            <li>Loi n° 95-125 du 8 février 1995 & Décret n° 96-652 du 22 juillet 1996.</li>
+            <li>Articles <strong>131-1 à 131-15</strong> du Code de procédure civile (CPC).</li>
+            <li>Articles 127, 127-1 CPC (Injonction d'information).</li>
+            <li>Réformes ultérieures (Décrets 2015-282, 2019-1333, 2022-245).</li>
+        </ul>
+    </div>
+    <!-- SLIDE 2 END -->
+
+    <!-- SLIDE 3 : Part 1.I Positionnement/Distinction -->
+    <div class="slide" id="slide-3">
+        <h2>1. Fondements et nature : Positionnement et Distinction (1.I)</h2>
+        <h3>La médiation, modalité de la conciliation incidente (1.I.A)</h3>
+        <ul>
+            <li>La médiation judiciaire est une forme <strong>déléguée</strong> et <strong>incidente</strong> de la mission générale de conciliation du juge (Art. 21 CPC).</li>
+            <li>Elle se différencie de la conciliation préalable (menée par un conciliateur de justice avant ou hors procès).</li>
+            <li>La distinction conceptuelle fait l'objet de débats (cf. travaux CNM sur la recodification des MARD).</li>
+        </ul>
+        <h3>Distinctions clés avec la conciliation déléguée (1.I.B)</h3>
+        <p>Repose sur un double critère (selon la pratique et les textes actuels) :</p>
+        <ul>
+            <li><strong>1) Le critère économique :</strong>
+                <ul>
+                    <li><strong>Médiation :</strong> Mission <strong>rémunérée</strong> (Art. 22-2 Loi 95-125). Provision initiale fixée par le juge (Art. 131-6 CPC). Frais répartis (ou selon équité/situation éco.). Aide juridictionnelle possible. Rémunération due indépendamment du succès (Civ. 2e, 22 mars 2007).</li>
+                    <li><strong>Conciliation :</strong> Mission <strong>bénévole</strong> (Art. R. 131-12 COJ). Gratuite pour les parties.</li>
+                </ul>
+            </li>
+            <li><strong>2) Les critères personnel et temporel :</strong>
+                <ul>
+                    <li><strong>Médiateur :</strong> Tiers <strong>ad hoc</strong>, choisi librement par le juge (même si souvent via listes) pour un litige spécifique. Mission essentiellement <strong>ponctuelle</strong>.</li>
+                    <li><strong>Conciliateur :</strong> Exerce une mission <strong>pérenne</strong> (nomination 1 an, renouvelable). Intégré fonctionnellement à l'équipe juridictionnelle.</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <!-- SLIDE 3 END -->
+
+    <!-- SLIDE 4 : Part 1.II Cadre Déontologique/Qualitatif (Expanded) -->
+     <div class="slide" id="slide-4">
+        <h2>1. Fondements et nature : Cadre Déontologique et Qualitatif (1.II)</h2>
+        <h3>L'exigence d'un cadre éthique (1.II.A)</h3>
+        <ul>
+            <li>La reconnaissance croissante des MARD s'accompagne d'une exigence renforcée de déontologie pour garantir <strong>qualité</strong> et <strong>fiabilité</strong> du processus.</li>
+            <li>Le CNM travaille à l'harmonisation (cf. Recueil de déontologie).</li>
+        </ul>
+         <h3>Les exigences relatives au médiateur (1.II.B - Art. 131-5 CPC)</h3>
+        <p>Le médiateur (personne physique) doit justifier :</p>
+        <ul>
+            <li>De conditions de <strong>moralité</strong> : Ne pas avoir fait l'objet de condamnation/incapacité/déchéance (B2 casier judiciaire) ou sanction disciplinaire contraire à l'honneur, la probité, aux bonnes mœurs.</li>
+            <li>De la <strong>qualification requise</strong> eu égard à la nature du litige (appréciée par le juge).</li>
+            <li>D'une <strong>formation ou d'une expérience adaptée</strong> à la pratique de la médiation (appréciation globale, pas d'exigence de diplôme spécifique mais tendance à la professionnalisation, cf. travaux CNM sur référentiels).</li>
+            <li>De l'<strong>indépendance</strong> nécessaire à l'exercice de la médiation (absence de liens financiers, personnels, professionnels avec les parties pouvant affecter son impartialité).</li>
+        </ul>
+         <h3>La question des listes de médiateurs (1.II.C)</h3>
+        <ul>
+            <li>Création de listes indicatives auprès de chaque cour d'appel (Loi 2016, Décret 2017) pour faciliter le choix du juge et sécuriser le processus.</li>
+             <li>Conditions d'inscription fixées par décret (vérification des exigences de l'Art. 131-5 CPC).</li>
+            <li><strong>Critiques récurrentes (Rapport CNM 2024) :</strong> Hétérogénéité des pratiques, faible utilisation par les juges, lourdeur administrative, multi-inscriptions problématiques, outils inadaptés. Recommandations pour améliorer (plateforme nationale, critères harmonisés, ancrage territorial).</li>
+        </ul>
+         <div class="perspective">
+            <p><strong>Perspective pratique (F. Hammoudi) :</strong> La formation (initiale/continue/analyse de pratique) et la capacité à maintenir une neutralité/impartialité absolue sont cruciales et concrétisent ces exigences. L'inscription sur listes est un gage de reconnaissance.</p>
+        </div>
+    </div>
+    <!-- SLIDE 4 END -->
+
+    <!-- SLIDE 5 : Part 2.I.A-B Régime Droit Commun - Mise en œuvre / Champ -->
+    <div class="slide" id="slide-5">
+        <h2>2. Régime juridique : Droit Commun - Mise en œuvre / Champ (2.I.A-B)</h2>
+        <h3>Conditions de mise en œuvre (2.I.A)</h3>
+        <ul>
+            <li><strong>Principe (Art. 131-1 CPC) :</strong> Ordonnée par le juge saisi, <strong>après avoir recueilli l'accord exprès des parties</strong>.
+                <ul><li>Cet accord est une condition essentielle (doit être mentionné dans la décision - Art. 131-6).</li><li>Ne vaut pas renonciation à une clause compromissoire (Civ. 1ère, 28 janv. 2003).</li></ul>
+            </li>
+            <li><strong>Tempérament (Art. 127-1 CPC) :</strong> Le juge peut <strong>enjoindre</strong> aux parties de rencontrer un médiateur pour une <strong>séance d'information</strong> sur l'objet et le déroulement de la mesure, même sans accord préalable sur la médiation elle-même.
+                <ul><li>Illustre une approche pragmatique : incitation forte plutôt qu'obligation généralisée.</li><li>Le juge fixe un délai pour cette rencontre.</li></ul>
+            </li>
+        </ul>
+        <h3>Champ d'application matériel et procédural (2.I.B)</h3>
+        <ul>
+            <li><strong>Matériel :</strong> Largement ouvert. Matière <strong>civile, commerciale, sociale, rurale, prud'homale</strong> (Art. 131-1 al. 3).</li>
+            <li><strong>Procédural :</strong> Devant <strong>toute juridiction</strong> de l'ordre judiciaire. À <strong>tout stade</strong> de la procédure (y compris référé, mise en état, appel, et même Cour de cassation - Art. 1012).</li>
+            <li><strong>Objet (Art. 131-2) :</strong> Peut porter sur <strong>tout ou partie</strong> du litige.</li>
+        </ul>
+    </div>
+    <!-- SLIDE 5 END -->
+
+    <!-- SLIDE 6 : Part 2.I.C Régime Droit Commun - Principes (Expanded) -->
+    <div class="slide" id="slide-6">
+        <h2>2. Régime juridique : Droit Commun - Principes Directeurs (2.I.C)</h2>
+        <h3>1) Le principe de confidentialité (Art. 131-14 CPC)</h3>
+        <ul>
+            <li><strong>Fondement :</strong> Garantir la confiance et la liberté de parole.</li>
+            <li><strong>Contenu :</strong> Les constatations du médiateur et les déclarations recueillies au cours de la médiation ne peuvent être divulguées aux tiers ni invoquées ou produites dans la suite de la procédure judiciaire (ou autre) sans l'accord de toutes les parties.</li>
+            <li><strong>Portée (Jurisprudence récente - Civ. 3e, 11 juil. 2024) :</strong> La confidentialité légale stricte couvre ce qui est dit/constaté *sous l'égide du médiateur*. Ne s'étend pas (sauf accord spécifique) aux documents/projets échangés *directement entre parties* en marge du processus formel.</li>
+            <li><strong>Exceptions légales (Art. 21-3 Loi 95-125) :</strong> Notamment pour des raisons impérieuses d'ordre public, ou pour les besoins de l'instance civile/commerciale relative à l'application ou l'exécution de l'accord issu de la médiation.</li>
+            <li><strong>Corollaire (Art. 131-8 al. 2) :</strong> Le médiateur ne peut être commis pour effectuer une mesure d'instruction dans la même affaire.</li>
+        </ul>
+         <h3>2) L'absence de pouvoir d'instruction (Art. 131-8 CPC)</h3>
+        <ul>
+            <li>Le médiateur n'est <strong>pas un enquêteur</strong> : il n'a pas le pouvoir d'ordonner des expertises, auditions de témoins sous serment, etc.</li>
+            <li>Il peut, avec l'accord de toutes les parties, <strong>entendre des tiers qui y consentent</strong> pour éclairer le contexte, mais sans formalisme d'instruction.</li>
+        </ul>
+         <div class="perspective">
+            <p><strong>Perspective pratique (F. Hammoudi) :</strong> La confidentialité est un pilier absolu, rappelé et contractualisé (engagement signé). Sa limite principale exposée est l'ordre public (menaces graves). Le rôle est celui d'un facilitateur neutre, sans pouvoir d'investigation.</p>
+        </div>
+    </div>
+    <!-- SLIDE 6 END -->
+
+    <!-- SLIDE 7 : Part 2.I.D Régime Droit Commun - Déroulement (Expanded) -->
+    <div class="slide" id="slide-7">
+        <h2>2. Régime juridique : Droit Commun - Déroulement (2.I.D)</h2>
+        <h3>1) La décision ordonnant la médiation (Art. 131-3 & 131-6 CPC)</h3>
+        <ul>
+            <li>Mentionne l'accord des parties (si requis).</li>
+            <li>Désigne le médiateur.</li>
+            <li>Fixe la <strong>durée initiale</strong> de la mission (max. 3 mois).</li>
+            <li>Peut être <strong>renouvelée une fois</strong> (max. 3 mois) à la demande du médiateur ou des parties.</li>
+            <li>Indique la date de <strong>rappel de l'affaire</strong> à l'audience.</li>
+            <li>Fixe le montant de la <strong>provision</strong>, désigne la ou les parties qui doivent la consigner, et impartit un <strong>délai</strong> pour ce faire.</li>
+        </ul>
+        <h3>2) La provision et sa consignation (Art. 131-6 & 131-7 CPC)</h3>
+        <ul>
+            <li>La consignation se fait <strong>directement entre les mains du médiateur</strong> (qui en informe les parties).</li>
+            <li><strong>Sanction du défaut de consignation</strong> intégrale dans le délai : <strong>Caducité</strong> de la décision ordonnant la médiation. L'instance reprend son cours.</li>
+            <li>Dès réception, le médiateur convoque les parties.</li>
+        </ul>
+        <h3>3) Rôle des parties et assistance (Art. 131-7 CPC)</h3>
+        <ul>
+            <li>Les parties se présentent (en personne ou représentées selon les règles applicables devant la juridiction).</li>
+            <li>Elles peuvent être <strong>assistées</strong> (avocat, expert-comptable, etc. selon habilitation devant la juridiction).</li>
+        </ul>
+        <h3>4) Information du juge (Art. 131-9 CPC)</h3>
+        <ul>
+            <li>Le médiateur doit tenir le juge informé des <strong>difficultés</strong> rencontrées dans l'accomplissement de sa mission (ex: non-participation d'une partie, blocage insurmontable).</li>
+        </ul>
+    </div>
+    <!-- SLIDE 7 END -->
+
+    <!-- SLIDE 8 : Part 2.I.E-F Régime Droit Commun - Fin/Issue/Effets (Expanded) -->
+    <div class="slide" id="slide-8">
+        <h2>2. Régime juridique : Droit Commun - Fin, Issue, Effets (2.I.E-F)</h2>
+        <h3>Fin et issue de la médiation (2.I.E)</h3>
+        <ul>
+            <li><strong>1) Cessation anticipée (Art. 131-10 CPC) :</strong> Le juge peut mettre fin à la mission à tout moment :
+                <ul><li>À la demande d'une partie.</li><li>À l'initiative du médiateur.</li><li>D'office, si le bon déroulement est compromis ou la mesure devenue sans objet.</li></ul>
+                L'affaire est alors rappelée à l'audience.
+            </li>
+            <li><strong>2) Issue de la médiation (Art. 131-11 CPC) :</strong> À l'issue de sa mission (terme ou cessation), le médiateur informe le juge <strong>par écrit</strong> si les parties sont parvenues ou non à un <strong>accord (total ou partiel)</strong>. C'est la seule information transmise (respect de la confidentialité).
+            </li>
+            <li><strong>3) L'homologation de l'accord (Art. 131-12 CPC) :</strong>
+                <ul><li>En cas d'accord (même partiel), les parties peuvent soumettre celui-ci à l'homologation du juge.</li><li>L'homologation lui confère <strong>force exécutoire</strong>.</li><li>Relève de la <strong>matière gracieuse</strong> : le juge dispose d'un pouvoir d'appréciation (peut refuser si l'accord ne préserve pas suffisamment les droits des parties ou est contraire à l'ordre public).</li><li>L'accord peut prendre la forme d'un protocole transactionnel. Les parties peuvent aussi convenir de ne pas demander l'homologation.</li></ul>
+            </li>
+        </ul>
+         <h3>Effets procéduraux : Interruption des délais d'appel (2.I.F - Art. 910-2 CPC)</h3>
+        <ul>
+            <li>La décision ordonnant la médiation (Art. 131-1) OU celle enjoignant une rencontre informative (Art. 127-1) <strong>interrompt les délais</strong> impartis pour conclure et former appel incident (délais des Art. 905-2, 908 à 910).</li>
+            <li>L'interruption produit ses effets <strong>jusqu'à l'expiration de la mission</strong> du médiateur.</li>
+            <li>Objectif : Préserver les droits des parties pendant qu'elles explorent la voie amiable, sans risquer forclusion ou caducité.</li>
+        </ul>
+    </div>
+    <!-- SLIDE 8 END -->
+
+    <!-- SLIDE 9 : Part 2.II Régime Spécifique - Médiation Familiale (Expanded) -->
+    <div class="slide" id="slide-9">
+        <h2>2. Régime spécifique : La Médiation Familiale (2.II)</h2>
+        <h3>Contexte et finalités propres (2.II.A)</h3>
+        <ul>
+            <li>Contentieux présentant une <strong>sensibilité particulière</strong> (relations interpersonnelles durables, intérêt de l'enfant).</li>
+            <li>Finalités dépassant la simple conciliation juridique :
+                <ul><li>Faciliter la recherche par les parents eux-mêmes d'un <strong>exercice consensuel de l'autorité parentale</strong>.</li><li><strong>Restaurer la communication</strong> entre les membres de la famille.</li><li>Prendre en compte les aspects non strictement juridiques du conflit.</li></ul>
+            </li>
+            <li>Inspiré par les recommandations du Conseil de l'Europe (Rec(98)1).</li>
+        </ul>
+        <h3>Fondements légaux spécifiques (2.II.B)</h3>
+        <ul>
+             <li>Principalement dans le <strong>Code civil</strong> :
+                 <ul><li><strong>Art. 255 :</strong> Le JAF peut proposer une mesure de médiation aux époux en instance de <strong>divorce</strong> et, après leur accord, désigner un médiateur familial.</li>
+                 <li><strong>Art. 373-2-10 :</strong> En cas de désaccord sur l'<strong>exercice de l'autorité parentale</strong>, le JAF s'efforce de concilier les parties. Il peut leur proposer une mesure de médiation et, après leur accord, désigner un médiateur familial.</li>
+                 </ul>
+            </li>
+        </ul>
+         <h3>Modalités de mise en œuvre particulières (JAF - Art. 373-2-10) (2.II.C)</h3>
+        <p>Le JAF dispose de deux options :</p>
+        <ul>
+             <li><strong>1) Proposition de médiation :</strong> Nécessite l'accord des parents pour sa mise en œuvre effective.</li>
+             <li><strong>2) Injonction de rencontre informative :</strong> Peut enjoindre aux parents de rencontrer un médiateur familial pour une <strong>séance d'information</strong> (gratuite) sur l'objet et le déroulement de la médiation.
+                 <ul><li><strong>Exclusion :</strong> Cette injonction est exclue en cas d'allégations de <strong>violences</strong> d'un parent sur l'autre ou sur l'enfant, ou d'<strong>emprise</strong> manifeste de l'un sur l'autre.</li></ul>
+            </li>
+        </ul>
+        <h3>Exigences de formation et de qualification renforcées (2.II.D)</h3>
+        <ul>
+            <li>Effort particulier de structuration et de garantie de qualité.</li>
+            <li>Création du <strong>Diplôme d'État de Médiateur Familial (DE MF)</strong> (Décret 2003-1166, Arrêtés de 2012) pour garantir la compétence spécifique.</li>
+             <li>Existence d'un Comité national consultatif pour la normalisation/moralisation.</li>
+             <li>Focus du CNM sur les spécificités (financement, cadre d'intervention, articulation avec socle commun).</li>
+        </ul>
     </div>
     <!-- SLIDE 9 END -->
-    <div class="slide" id="slide-10"><h2>3. Rôle, compétences et techniques du médiateur judiciaire</h2><h3>compétences essentielles (synthèse pratique & légale) :</h3><ul><li><strong>1. maîtrise du cadre juridique et déontologique :</strong> formation solide et continue.</li><li><strong>2. capacité à garantir neutralité et impartialité :</strong> indépendance.</li><li><strong>3. maîtrise des techniques de communication et de médiation :</strong> écoute active, reformulation, questionnement, gestion du processus.</li></ul><h3>rôle principal :</h3><ul><li>agir comme <strong>facilitateur neutre et impartial</strong> du processus de communication.</li><li>être le <strong>garant du cadre</strong> procédural et déontologique.</li><li>aider à l'identification des <strong>besoins et intérêts sous-jacents</strong>.</li><li>structurer le dialogue pour permettre l'émergence d'une solution négociée.</li><li>se distingue du juge, arbitre, conciliateur (sens strict), conseil juridique.</li></ul><h3>articulation mission / principe fondamental :</h3><p>La mission (faciliter la recherche de solution) se concilie avec le principe (solution émane des parties) par une action centrée sur le processus et non sur le contenu de l'accord.</p></div>
-    <!-- SLIDES 2-10 END -->
 
-    <!-- SLIDE 11 MISE A JOUR -->
-    <div class="slide" id="slide-11">
-        <h2>4. Défis, éthique et cas particuliers en pratique</h2>
-
-        <h3>Défis et difficultés courantes</h3> <!-- Parenthèses supprimées -->
+    <!-- SLIDE 10 : Part 3.I-II Entretien Hammoudi - Intro / Processus Pratique -->
+    <div class="slide" id="slide-10">
+        <h2>3. Entretien Pratique (F. Hammoudi) : Démarrage du Processus (3.I-II)</h2>
+        <h3>Vision générale et finalité (3.I.B)</h3>
         <ul>
-            <li>Gestion de la <strong>forte charge émotionnelle</strong> (rancœur, injustice).</li>
-            <li>Gestion de la <strong>résistance</strong> des parties ("à contrecœur").</li>
-             <li>Gestion de l'<strong>agressivité verbale</strong> / menaces (rare).</li>
-            <li>Alignement des <strong>attentes</strong> des parties/conseils avec la nature du processus.</li>
-            <li>Articulation constructive avec le rôle des <strong>conseils</strong>.</li>
-             <li>Maintien constant de la <strong>posture déontologique</strong> (neutralité, impartialité) en tension.</li>
+            <li><strong>Finalité principale :</strong> Réduire la <strong>souffrance</strong> associée au conflit et à la procédure judiciaire.</li>
+            <li>Offrir un espace pour rechercher une <strong>solution amiable, constructive, mutuellement acceptable</strong>, souvent plus rapide.</li>
+            <li>Aller au-delà de la simple résolution juridique.</li>
         </ul>
+        <h3>Distinction Médiation Judiciaire / Conventionnelle (Point de vue pratique)</h3>
+        <ul>
+             <li><strong>Médiation Judiciaire :</strong> Implication de l'institution (ordonnance), caractère plus formel, engagement psychologique/procédural plus fort des parties (ayant donné accord ou suite à injonction).</li>
+             <li><strong>Médiation Conventionnelle :</strong> Démarche purement volontaire initiée par les parties hors procédure.</li>
+        </ul>
+        <h3>La désignation et le démarrage (3.II.A)</h3>
+        <ul>
+            <li>Souvent en appel (ex: Prud'hommes), quand le conflit perdure.</li>
+            <li>Le juge propose (accord requis) ou enjoint une information.</li>
+            <li><strong>Ordonnance de désignation :</strong> Reçue par le médiateur, mentionne son nom, identité parties/avocats (pas le fond du litige pour préserver la neutralité).</li>
+            <li><strong>Premières actions du médiateur :</strong>
+                <ol><li>Rechercher coordonnées avocats.</li><li>Contacter avocats pour obtenir coordonnées directes des "médiés".</li><li>Envoyer courriel direct aux parties (avocats en copie) : information désignation, demande de contact pour confirmation/organisation 1ère rencontre.</li><li>Convenir date/lieu 1ère séance.</li></ol>
+            </li>
+        </ul>
+    </div>
+    <!-- SLIDE 10 END -->
 
-        <h3>Éthique et confidentialité</h3> <!-- Parenthèses supprimées -->
-         <ul>
-            <li><strong>Confidentialité</strong> (Art. 131-14 CPC) : Pilier absolu, expliqué et garanti formellement.</li>
-             <li><strong>Limite :</strong> Ordre public (ex: menaces graves à l'intégrité physique).</li>
-             <li><strong>Articulation avec l'information du juge :</strong> Seule l'issue factuelle (accord/désaccord) est communiquée succinctement (Art. 131-11 CPC), sans détails des échanges ni protocole.</li>
+    <!-- SLIDE 11 : Part 3.III Entretien Hammoudi - Rôle / Compétences / Techniques -->
+    <div class="slide" id="slide-11">
+        <h2>3. Entretien Pratique (F. Hammoudi) : Rôle, Compétences, Techniques (3.III)</h2>
+        <h3>Le rôle du médiateur judiciaire (3.III.A)</h3>
+        <ul>
+            <li>Essentiellement : <strong>Facilitateur neutre et impartial</strong>.</li>
+            <li>Ne propose ni n'impose de solution (celle-ci doit émaner des parties).</li>
+            <li><strong>Garant du cadre :</strong> Structure le dialogue, assure un environnement sécurisant et respectueux.</li>
+            <li>Aide à identifier <strong>besoins et intérêts</strong> (souvent masqués par le conflit).</li>
+            <li>Utilise des techniques de communication pour faciliter l'émergence.</li>
+            <li>N'est ni décideur, ni conciliateur (au sens strict), ni expert, ni conseil.</li>
         </ul>
-         <h3>Cas particuliers</h3> <!-- Parenthèses supprimées -->
-         <ul>
-             <li><strong>Gestion des parties "à contrecœur" :</strong> Rappel direct du cadre, du caractère volontaire de la solution, climat propice (écoute, reformulation), rappel indirect de l'information au juge.</li>
-            <li><strong>Fin anticipée (Art. 131-10 CPC) :</strong> Annoncée clairement si impasse, rupture de confiance, comportement inacceptable (~20% des cas selon F.H.). Information factuelle au juge.</li>
-         </ul>
+        <h3>Compétences et techniques clés (3.III.B)</h3>
+        <ul>
+            <li><strong>Compétences essentielles :</strong>
+                <ol><li><strong>Formation !</strong> (Initiale solide, continue indispensable, analyse de pratique).</li><li>Capacité à maintenir <strong>neutralité et impartialité</strong> sans faille.</li><li>Excellente maîtrise des <strong>techniques de communication</strong>.</li></ol>
+            </li>
+             <li><strong>Techniques de communication utilisées :</strong>
+                <ul><li><strong>Écoute active :</strong> Compétence de base permanente.</li><li><strong>Reformulation :</strong> Très fréquente (vérifier compréhension, montrer écoute, clarifier pour l'autre partie).</li><li><strong>Questionnement :</strong> Central. Questions ouvertes (explorer besoins/intérêts), parfois confrontantes ("questions qui font mal"), jamais dirigées.</li><li><strong>Caucus (entretiens séparés) :</strong> Option utilisée avec parcimonie (points sensibles, blocages), toujours avec accord explicite de toutes les parties.</li></ul>
+            </li>
+             <li><strong>Maintien de la neutralité (contexte judiciarisé tendu) :</strong> Refus info préalable sur le fond, cadre strict, techniques neutres (reformulation), clarification rôles (médiateur/avocats), focus processus.</li>
+        </ul>
     </div>
     <!-- SLIDE 11 END -->
 
-     <!-- SLIDE 12 MISE A JOUR (RACCOURCIE) -->
+    <!-- SLIDE 12 : Part 3.IV Entretien Hammoudi - Défis / Éthique / Cas Particuliers -->
     <div class="slide" id="slide-12">
-        <h2>5. Bilan, impact et perspectives</h2>
-
-        <h3>Bilan et impact</h3>
-         <ul>
-             <li><strong>Bénéfices pour les justiciables :</strong> Apaisement, réduction du stress, économies potentielles (coûts/délais), solution co-construite/adaptée, restauration du dialogue.</li>
-            <li><strong>Bénéfices pour l'institution judiciaire :</strong> Désengorgement des tribunaux, concentration sur les cas non-amiables, pacification sociale.</li>
-            <li><strong>Limites :</strong> Dépendance de la volonté des parties, qualité de la formation/expérience du médiateur.</li>
-            <li><strong>Notion de "succès" (selon F. Hammoudi) :</strong> Accord (total/partiel) dans 75-80% des cas. Inclut aussi amélioration de la communication, clarification des points, participation respectueuse. Succès ultime = apaisement visible.</li>
+        <h2>3. Entretien Pratique (F. Hammoudi) : Défis, Éthique, Cas Particuliers (3.IV)</h2>
+        <h3>Défis et difficultés (3.IV.A)</h3>
+        <ul>
+            <li>Gestion de la <strong>charge émotionnelle</strong> forte (rancœur, injustice).</li>
+            <li><strong>Résistance</strong> des parties ("à contrecœur").</li>
+            <li><strong>Agressivité verbale</strong> / menaces (rare) -> gestion ferme du cadre.</li>
+            <li>Gestion des <strong>attentes</strong> initiales parfois décalées.</li>
+            <li>Rôle parfois <strong>ambivalent</strong> perçu des avocats (conseil vs plaidant).</li>
         </ul>
-
-        <h3>Avenir de la médiation judiciaire</h3>
-         <ul>
-            <li>Potentiel important mais <strong>sous-utilisation</strong> actuelle en France.</li>
-            <li>Nécessité d'une meilleure <strong>compréhension</strong> par tous les acteurs.</li>
-            <li>Enjeux : Renforcement/harmonisation de la <strong>formation</strong>, clarification du <strong>statut</strong>, meilleure <strong>reconnaissance institutionnelle</strong>.</li>
+         <h3>Éthique et confidentialité (3.IV.B)</h3>
+        <ul>
+            <li><strong>Confidentialité :</strong> Pilier absolu, expliqué et garanti formellement (engagement signé). Concerne tout ce qui est dit/échangé en séance.</li>
+             <li><strong>Limite exposée :</strong> Ordre public (menaces graves à l'intégrité physique). Signalement du risque à l'autorité judiciaire (si possible sans attribution directe).</li>
+             <li><strong>Information du juge :</strong> Purement factuelle (accord/désaccord). Aucun détail des échanges, pas de rapport écrit au sens classique. Le protocole d'accord n'est pas transmis par le médiateur.</li>
         </ul>
-        <!-- La perspective finale a été supprimée -->
+        <h3>Cas particuliers (Gestion pratique)</h3>
+         <ul>
+            <li><strong>Parties "à contrecœur" :</strong> Aborder directement/respectueusement. Rappeler cadre/volontariat de la solution. Souligner rôle facilitateur. Techniques pour détendre (pause café). Rappel indirect issue communiquée au juge.</li>
+            <li><strong>Fin anticipée :</strong> Possible (rare, ~20% cas F.H.). Raisons : impasse totale, rupture confiance, menaces/comportement inacceptable. Annonce claire aux parties, information factuelle au juge (sans détails).</li>
+             <li><strong>Cadre temporel (3 mois renouvelable) :</strong> Perçu comme <strong>levier</strong> et structure nécessaire, non comme contrainte. Incite à l'efficacité.</li>
+             <li><strong>Rôle des avocats :</strong> Qualité de "conseil". Ne refont pas le débat judiciaire. Informés (copies emails), signent engagement confidentialité. Doivent demander accord partie adverse pour parler. Généralement respectueux du cadre.</li>
+        </ul>
     </div>
     <!-- SLIDE 12 END -->
 
-    <!-- SLIDE 13 (Conclusion) -->
+    <!-- SLIDE 13 : Part 3.V Entretien Hammoudi - Bilan / Perspectives Pratiques -->
     <div class="slide" id="slide-13">
-        <h2>Conclusion</h2>
-        <h3>Synthèse juridique et pratique :</h3>
+        <h2>3. Entretien Pratique (F. Hammoudi) : Bilan et Perspectives (3.V)</h2>
+        <h3>Bilan et impact (3.V.A)</h3>
         <ul>
-            <li>La médiation judiciaire est un outil procédural encadré, offrant une voie amiable intégrée à l'instance.</li>
-            <li>Son régime est structuré par des principes clairs : accord des parties (principe), confidentialité, neutralité du médiateur.</li>
-            <li>Elle requiert un tiers qualifié, formé, indépendant et impartial, soumis à une déontologie stricte.</li>
-            <li>Elle vise une justice plus efficiente et adaptée, contribuant à l'apaisement des conflits.</li>
-            <li>La valorisation de la formation et la reconnaissance professionnelle sont des leviers essentiels pour son développement.</li>
+            <li><strong>Bénéfices justiciables :</strong> Apaisement psychologique/émotionnel, réduction stress, économie (coûts/délais), solution co-construite.</li>
+            <li><strong>Bénéfices institution :</strong> Désengorgement tribunaux, pacification relations sociales.</li>
+             <li><strong>Limites :</strong> Repose sur volonté des parties. Échec possible si blocage/mauvaise foi. Dépend qualité formation/expérience médiateur.</li>
+            <li><strong>"Taux de succès" :</strong> Participation active = déjà un succès. Accord trouvé dans <strong>~75-80%</strong> des cas menés. Succès = aussi amélioration communication, clarification désaccord, accord partiel. Voir parties repartir apaisées = meilleure définition du succès.</li>
         </ul>
-        <p style="margin-top: 3em; text-align: center; font-weight: 600;">La médiation judiciaire : une opportunité de co-construire une solution au-delà du droit strict.</p>
+        <h3>Avenir de la médiation judiciaire (3.V.B)</h3>
+         <ul>
+            <li>Actuellement <strong>sous-utilisée</strong> en France (vs autres pays). Potentiel non pleinement exploité.</li>
+            <li>Besoin de <strong>mieux la faire connaître et comprendre</strong> (justiciables, professionnels).</li>
+            <li><strong>Améliorations souhaitables :</strong> Renforcer/harmoniser <strong>formation</strong>, insister sur analyse de pratique. Meilleure <strong>reconnaissance institutionnelle</strong>, clarification statut/rôle. Nombre de médiateurs formés reste un enjeu.</li>
+        </ul>
+        <h3>Conseils pour futurs médiateurs judiciaires</h3>
+        <ul>
+             <li><strong>Investir massivement dans la formation :</strong> Initiale de qualité, continue régulière, groupes d'analyse de pratique.</li>
+             <li>Maîtriser techniques ET éthique/cadre juridique.</li>
+             <li>Qualités personnelles indispensables : Neutralité, impartialité, écoute, patience, empathie, gestion émotions/conflits.</li>
+        </ul>
+        <h3>Point clé réitéré (3.VI.A - Clôture)</h3>
+        <ul>
+             <li>Importance du <strong>cadre très structuré</strong> et du rôle central de la <strong>communication</strong> (y compris formelle/écrite pour traçabilité).</li>
+             <li>Satisfaction ultime : Constater l'émergence d'une solution grâce au processus et l'apaisement qui en résulte.</li>
+        </ul>
     </div>
     <!-- SLIDE 13 END -->
 
-    <!-- SLIDE 14 START : VERROUILLAGE -->
+    <!-- SLIDE 14 : Conclusion (Original Slide 13) -->
     <div class="slide" id="slide-14">
+        <h2>Conclusion</h2>
+        <h3>Synthèse juridique et pratique :</h3>
+        <ul>
+            <li>La médiation judiciaire est un outil procédural encadré, offrant une voie amiable structurée et intégrée à l'instance judiciaire.</li>
+            <li>Son régime juridique repose sur des principes fondamentaux clairs : primauté de l'accord des parties (en principe), confidentialité absolue des échanges, neutralité et impartialité du médiateur désigné.</li>
+            <li>Elle requiert l'intervention d'un tiers qualifié, spécifiquement formé aux techniques de médiation, indépendant et soumis à une déontologie stricte, garantissant la qualité du processus.</li>
+            <li>Elle vise une justice plus efficiente, en désengorgeant les tribunaux, et plus adaptée aux besoins des parties, en leur permettant de co-construire une solution et en contribuant à l'apaisement des conflits.</li>
+            <li>La valorisation de la formation spécifique, la clarification du statut et la reconnaissance professionnelle des médiateurs judiciaires sont des leviers essentiels pour optimiser son déploiement et son efficacité.</li>
+        </ul>
+        <p style="margin-top: 3em; text-align: center; font-weight: 600;">La médiation judiciaire : une opportunité de co-construire une solution durable, au-delà du strict litige juridique.</p>
+    </div>
+    <!-- SLIDE 14 END -->
+
+    <!-- SLIDE 15 : VERROUILLAGE (Original Slide 14) -->
+    <div class="slide" id="slide-15">
         <h2>Accès au Questionnaire</h2>
         <p>Pour vérifier vos connaissances, veuillez entrer le mot de passe pour accéder au quiz.</p>
         <div>
@@ -276,10 +783,10 @@
         </div>
         <p id="passwordFeedback"></p>
     </div>
-    <!-- SLIDE 14 END -->
+    <!-- SLIDE 15 END -->
 
-    <!-- SLIDE 15 START : QUESTIONNAIRE INTERACTIF -->
-    <div class="slide" id="slide-15">
+    <!-- SLIDE 16 : QUESTIONNAIRE INTERACTIF (Original Slide 15) -->
+    <div class="slide" id="slide-16">
         <h2>Quiz Interactif</h2>
         <form id="quizForm">
             <div class="quiz-question" data-question="q1">
@@ -304,7 +811,6 @@
                 <span class="feedback"></span>
             </div>
 
-             <!-- Question 3 modifiée -->
              <div class="quiz-question" data-question="q3">
                 <p>3. Quelle est la différence fondamentale entre le médiateur judiciaire et le conciliateur de justice ?</p>
                 <div class="quiz-options">
@@ -364,10 +870,6 @@
                 <button type="submit" id="submitQuizBtn">Valider le Quiz</button>
                 <button type="button" id="resetQuizBtn">Réinitialiser</button>
             </div>
-
-            <!-- La div quizResult est déplacée dans la modale -->
-            <!-- <div id="quizResult"></div> -->
-
         </form>
 
          <!-- Modale pour afficher le score -->
@@ -376,19 +878,17 @@
                 <span id="closeScoreModal" class="close-modal" title="Fermer">×</span>
                 <h3>Résultat du Quiz</h3>
                 <p id="finalScoreText"></p>
-                 <!-- La div quizResult est maintenant DANS la modale pour l'affichage formaté -->
                  <div id="quizResult"></div>
             </div>
         </div>
-
     </div>
-    <!-- SLIDE 15 END -->
-
+    <!-- SLIDE 16 END -->
 
     <!-- Navigation interne -->
     <div class="navigation">
         <button id="prevBtn" title="Précédent" disabled>←</button>
-        <span class="slide-counter" id="slideCounter">Slide 1 / 15</span>
+        <span class="slide-counter" id="slideCounter">Slide 1 / 16</span> <!-- Mise à jour du total -->
+        <button id="fullscreenBtn" title="Plein écran">⛶</button>
         <button id="nextBtn" title="Suivant">→</button>
     </div>
 
@@ -405,26 +905,29 @@
     const unlockQuizBtn = document.getElementById('unlockQuizBtn');
 
     let currentSlideIndex = 0;
-    const totalSlides = slides.length; // 15
-    const lockSlideIndex = 13; // Slide 14 (index 13)
-    const quizSlideIndex = 14; // Slide 15 (index 14)
+    const totalSlides = 16; // ** Mise à jour du nombre total de slides **
+    const lockSlideIndex = 14; // ** Index de la slide 15 (verrouillage) **
+    const quizSlideIndex = 15; // ** Index de la slide 16 (quiz) **
 
     // Éléments Modale Score
     const scoreModal = document.getElementById('scoreModal');
-    const finalScoreText = document.getElementById('finalScoreText'); // Élément pour texte score dans modale
-    const closeScoreModalBtn = document.getElementById('closeScoreModal'); // Bouton 'x'
-    const quizResultDiv = document.getElementById('quizResult'); // Conteneur score formaté dans modale
+    const finalScoreText = document.getElementById('finalScoreText');
+    const closeScoreModalBtn = document.getElementById('closeScoreModal');
+    const quizResultDiv = document.getElementById('quizResult');
+    const quizForm = document.getElementById('quizForm'); // Défini ici pour accès global
 
     function showSlide(index) {
         slides.forEach((slide, i) => {
             slide.classList.toggle('active-slide', i === index);
             slide.classList.toggle('title-slide', i === 0);
+            // Exclure le style slide-15 et slide-16 des sélecteurs généraux h2, h3 etc. dans le CSS si nécessaire
+            slide.id = `slide-${i + 1}`; // Assigner un id dynamique
             if (i === index) { slide.scrollTop = 0; }
         });
         prevBtn.disabled = (index === 0);
         nextBtn.disabled = (index === lockSlideIndex || index === totalSlides - 1);
         slideCounter.style.visibility = (index === 0) ? 'hidden' : 'visible';
-        slideCounter.textContent = `Slide ${index + 1} / ${totalSlides}`;
+        slideCounter.textContent = `Slide ${index + 1} / ${totalSlides}`; // Mise à jour ici
         if (index !== lockSlideIndex) {
             if(quizPasswordInput) quizPasswordInput.value = '';
             if(passwordFeedback) passwordFeedback.textContent = '';
@@ -432,7 +935,6 @@
         if (index === quizSlideIndex && typeof resetQuiz === 'function') {
             resetQuiz();
         }
-        // Cacher la modale si on quitte la slide du quiz
         if (index !== quizSlideIndex && scoreModal) {
              scoreModal.style.display = 'none';
              if(quizForm) quizForm.classList.remove('quiz-blurred');
@@ -442,13 +944,19 @@
     function goToNextSlide() {
         if (currentSlideIndex === lockSlideIndex) return;
         if (currentSlideIndex < totalSlides - 1) {
-            currentSlideIndex++; showSlide(currentSlideIndex);
+            currentSlideIndex++;
+            showSlide(currentSlideIndex);
         }
     }
 
     function goToPrevSlide() {
          if (currentSlideIndex > 0) {
-            currentSlideIndex--; showSlide(currentSlideIndex);
+            if (currentSlideIndex === quizSlideIndex) {
+                 currentSlideIndex = lockSlideIndex;
+            } else {
+                currentSlideIndex--;
+            }
+            showSlide(currentSlideIndex);
         }
     }
 
@@ -456,16 +964,22 @@
      if (unlockQuizBtn && quizPasswordInput && passwordFeedback) {
         unlockQuizBtn.addEventListener('click', () => {
             const enteredPassword = quizPasswordInput.value;
-            const correctPassword = 'justice'; // !! CHANGEZ CECI !!
+            const correctPassword = 'justice'; // !! MOT DE PASSE DU QUIZ !!
             if (enteredPassword === correctPassword) {
-                passwordFeedback.textContent = ''; quizPasswordInput.value = '';
-                currentSlideIndex = quizSlideIndex; showSlide(currentSlideIndex);
+                passwordFeedback.textContent = '';
+                quizPasswordInput.value = '';
+                currentSlideIndex = quizSlideIndex;
+                showSlide(currentSlideIndex);
             } else {
-                passwordFeedback.textContent = 'Mot de passe incorrect.'; quizPasswordInput.value = '';
+                passwordFeedback.textContent = 'Mot de passe incorrect.';
+                quizPasswordInput.value = '';
             }
         });
          quizPasswordInput.addEventListener('keydown', (event) => {
-             if (event.key === 'Enter') { event.preventDefault(); unlockQuizBtn.click(); }
+             if (event.key === 'Enter') {
+                 event.preventDefault();
+                 unlockQuizBtn.click();
+             }
          });
     } else { console.error("Password elements not found."); }
 
@@ -477,12 +991,14 @@
              if (event.target.id !== 'quizPassword' || event.key !== 'Enter') { return; }
         }
         if (event.key === ' ' || event.code === 'Space' || event.key === 'ArrowRight') {
-            event.preventDefault(); if (currentSlideIndex !== lockSlideIndex) { goToNextSlide(); }
-        } else if (event.key === 'ArrowLeft') { event.preventDefault(); goToPrevSlide(); }
+            event.preventDefault();
+            if (currentSlideIndex !== lockSlideIndex) { goToNextSlide(); }
+        } else if (event.key === 'ArrowLeft') {
+            event.preventDefault(); goToPrevSlide();
+        }
     });
 
     // --- Script du Quiz Interactif ---
-    const quizForm = document.getElementById('quizForm');
     const submitQuizBtn = document.getElementById('submitQuizBtn');
     const resetQuizBtn = document.getElementById('resetQuizBtn');
     const quizQuestions = document.querySelectorAll('#quizForm .quiz-question');
@@ -493,9 +1009,9 @@
         if (!quizForm) return;
         quizForm.reset();
         if(quizResultDiv) { quizResultDiv.textContent = ''; quizResultDiv.className = ''; }
-        if(finalScoreText) { finalScoreText.textContent = ''; } // Vider texte score modale
-        if(scoreModal) scoreModal.style.display = 'none'; // Cacher modale
-        quizForm.classList.remove('quiz-blurred'); // Enlever flou
+        if(finalScoreText) { finalScoreText.textContent = ''; }
+        if(scoreModal) scoreModal.style.display = 'none';
+        quizForm.classList.remove('quiz-blurred');
         quizQuestions.forEach(questionDiv => {
             const questionName = questionDiv.dataset.question; if (!questionName) return;
             const optionsLabels = questionDiv.querySelectorAll('.quiz-options label');
@@ -506,14 +1022,14 @@
             radios.forEach(radio => radio.disabled = false);
         });
         if(submitQuizBtn) submitQuizBtn.disabled = false;
+        if(resetQuizBtn) resetQuizBtn.disabled = true;
     }
 
-    if (quizForm && submitQuizBtn && resetQuizBtn && quizResultDiv && quizQuestions.length > 0 && scoreModal && finalScoreText && closeScoreModalBtn) {
+     if (quizForm && submitQuizBtn && resetQuizBtn && quizResultDiv && quizQuestions.length > 0 && scoreModal && finalScoreText && closeScoreModalBtn) {
         function checkQuiz(event) {
             event.preventDefault();
             let score = 0;
             quizQuestions.forEach(questionDiv => {
-                // ... (logique interne de vérification et affichage feedback inchangée) ...
                  const questionName = questionDiv.dataset.question; if (!questionName) return;
                  const feedbackSpan = questionDiv.querySelector('.feedback');
                  const selectedRadio = quizForm.querySelector(`input[name="${questionName}"]:checked`);
@@ -521,27 +1037,41 @@
                  const radios = questionDiv.querySelectorAll(`input[name="${questionName}"]`);
                  optionsLabels.forEach(label => { label.classList.remove('correct-answer', 'incorrect-answer'); });
                  if(feedbackSpan) { feedbackSpan.textContent = ''; feedbackSpan.className = 'feedback'; }
-                 if (selectedRadio) { const selectedValue = selectedRadio.value; const selectedLabel = quizForm.querySelector(`label[for="${selectedRadio.id}"]`); if (selectedValue === correctAnswers[questionName]) { score++; if(selectedLabel) selectedLabel.classList.add('correct-answer'); if(feedbackSpan) { feedbackSpan.textContent = 'Correct !'; feedbackSpan.classList.add('correct'); } } else { if(selectedLabel) selectedLabel.classList.add('incorrect-answer'); if(feedbackSpan) { feedbackSpan.textContent = `Incorrect. La bonne réponse était ${correctAnswers[questionName]}.`; feedbackSpan.classList.add('incorrect'); } const correctRadioId = questionName + correctAnswers[questionName].toLowerCase(); const correctLabel = quizForm.querySelector(`label[for="${correctRadioId}"]`); if(correctLabel) correctLabel.classList.add('correct-answer'); } } else { if(feedbackSpan) { feedbackSpan.textContent = 'Aucune réponse sélectionnée.'; feedbackSpan.classList.add('incorrect'); } } radios.forEach(radio => radio.disabled = true);
+                 if (selectedRadio) {
+                     const selectedValue = selectedRadio.value;
+                     const selectedLabel = quizForm.querySelector(`label[for="${selectedRadio.id}"]`);
+                     if (selectedValue === correctAnswers[questionName]) {
+                         score++;
+                         if(selectedLabel) selectedLabel.classList.add('correct-answer');
+                         if(feedbackSpan) { feedbackSpan.textContent = 'Correct !'; feedbackSpan.classList.add('correct'); }
+                     } else {
+                         if(selectedLabel) selectedLabel.classList.add('incorrect-answer');
+                         if(feedbackSpan) { feedbackSpan.textContent = `Incorrect. La bonne réponse était ${correctAnswers[questionName]}.`; feedbackSpan.classList.add('incorrect'); }
+                         const correctRadioId = questionName + correctAnswers[questionName].toLowerCase();
+                         const correctLabel = quizForm.querySelector(`label[for="${correctRadioId}"]`);
+                         if(correctLabel) correctLabel.classList.add('correct-answer');
+                     }
+                 } else {
+                     if(feedbackSpan) { feedbackSpan.textContent = 'Aucune réponse sélectionnée.'; feedbackSpan.classList.add('incorrect'); }
+                 }
+                 radios.forEach(radio => radio.disabled = true);
             });
 
-            // Afficher score dans la modale
-            finalScoreText.textContent = `Votre score : ${score} / ${totalQuestions}`; // Texte dans la modale
-            quizResultDiv.className = ''; // Reset des classes de résultat précédentes
-             quizResultDiv.classList.add(score >= totalQuestions / 2 ? 'passed' : 'failed'); // Style du conteneur dans modale
-            scoreModal.style.display = 'flex'; // Afficher la modale
-            quizForm.classList.add('quiz-blurred'); // Flouter le formulaire derrière
-
+            finalScoreText.textContent = `Votre score : ${score} / ${totalQuestions}`;
+            quizResultDiv.className = '';
+            quizResultDiv.classList.add(score >= Math.ceil(totalQuestions / 2) ? 'passed' : 'failed'); // Use Math.ceil for passing threshold
+            scoreModal.style.display = 'flex';
+            quizForm.classList.add('quiz-blurred');
             submitQuizBtn.disabled = true;
             resetQuizBtn.disabled = false;
         }
 
-        // Fermer la modale
         function closeModal() {
              scoreModal.style.display = 'none';
              quizForm.classList.remove('quiz-blurred');
         }
         closeScoreModalBtn.addEventListener('click', closeModal);
-        scoreModal.addEventListener('click', (event) => { // Fermer en cliquant sur l'overlay
+        scoreModal.addEventListener('click', (event) => {
             if (event.target === scoreModal) { closeModal(); }
         });
 
@@ -550,6 +1080,57 @@
         if (currentSlideIndex === quizSlideIndex) { resetQuiz(); }
 
     } else { console.error("Quiz elements or Modal elements not found."); }
+
+    // --- Script Mode Plein Écran ---
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const slidesContainer = document.querySelector('.slides-container');
+
+    if (fullscreenBtn && slidesContainer) {
+        function getFullscreenElement() {
+            return document.fullscreenElement
+                || document.webkitFullscreenElement
+                || document.mozFullScreenElement
+                || document.msFullscreenElement;
+        }
+
+        function toggleFullScreen() {
+            if (!getFullscreenElement()) {
+                if (slidesContainer.requestFullscreen) { slidesContainer.requestFullscreen(); }
+                else if (slidesContainer.webkitRequestFullscreen) { slidesContainer.webkitRequestFullscreen(); }
+                else if (slidesContainer.mozRequestFullScreen) { slidesContainer.mozRequestFullScreen(); }
+                else if (slidesContainer.msRequestFullscreen) { slidesContainer.msRequestFullscreen(); }
+            } else {
+                if (document.exitFullscreen) { document.exitFullscreen(); }
+                else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+                else if (document.mozCancelFullScreen) { document.mozCancelFullScreen(); }
+                else if (document.msExitFullscreen) { document.msExitFullscreen(); }
+            }
+        }
+
+        fullscreenBtn.addEventListener('click', toggleFullScreen);
+
+        function handleFullscreenChange() {
+            if (getFullscreenElement()) {
+                fullscreenBtn.textContent = '⛶'; // Icône simple pour sortir
+                fullscreenBtn.title = 'Quitter le plein écran';
+                slidesContainer.classList.add('is-fullscreen');
+            } else {
+                fullscreenBtn.textContent = '⛶';
+                fullscreenBtn.title = 'Plein écran';
+                slidesContainer.classList.remove('is-fullscreen');
+            }
+        }
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+    } else {
+        console.error("Bouton plein écran ou conteneur de slides non trouvé.");
+        if(fullscreenBtn) fullscreenBtn.style.display = 'none';
+    }
+    // --- Fin Script Mode Plein Écran ---
 
     // Initialisation
     showSlide(currentSlideIndex);
