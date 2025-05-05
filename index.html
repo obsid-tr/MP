@@ -307,7 +307,7 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.6);
             z-index: 1000;
-            display: flex;
+            display: flex; /* Changé en flex pour le centrage vertical */
             justify-content: center;
             align-items: center;
         }
@@ -341,6 +341,46 @@
             line-height: 1;
         }
         .close-modal:hover { color: #333; }
+
+        /* --- Style pour les pastilles indicateurs de slide --- */
+        .slide::after {
+            content: '';
+            position: absolute;
+            width: 12px;         /* Taille de la pastille */
+            height: 12px;        /* Taille de la pastille */
+            border-radius: 50%; /* Ronde */
+            /* Positionné par rapport au coin inférieur droit de la zone de contenu de la slide */
+            bottom: 10px;       /* Ajustez si besoin (distance du bas) */
+            right: 10px;        /* Ajustez si besoin (distance de la droite) */
+            /* Assure la visibilité au-dessus du contenu */
+            z-index: 5;
+            display: none;      /* Pastille cachée par défaut */
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Ombre légère pour la visibilité */
+        }
+
+        /* Slides avec pastille ROUGE (A) */
+        #slide-2::after,
+        #slide-3::after,
+        #slide-4::after,
+        #slide-8::after,
+        #slide-9::after,
+        #slide-14::after { /* La slide Conclusion est #slide-14 */
+            background-color: var(--incorrect-color); /* Rouge Erreur */
+            display: block; /* Afficher la pastille */
+        }
+
+        /* Slides avec pastille BLEUE (T) */
+        #slide-5::after,
+        #slide-6::after,
+        #slide-7::after,  /* Ajout de la slide 7 ici */
+        #slide-10::after,
+        #slide-11::after,
+        #slide-12::after,
+        #slide-13::after {
+            background-color: var(--primary-color); /* Bleu France */
+            display: block; /* Afficher la pastille */
+        }
+        /* --- Fin Style Pastilles Indicateurs --- */
 
         /* ---- Navigation Interne ---- */
         .navigation {
@@ -1058,9 +1098,9 @@
             });
 
             finalScoreText.textContent = `Votre score : ${score} / ${totalQuestions}`;
-            quizResultDiv.className = '';
+            quizResultDiv.className = ''; // Reset classes
             quizResultDiv.classList.add(score >= Math.ceil(totalQuestions / 2) ? 'passed' : 'failed'); // Use Math.ceil for passing threshold
-            scoreModal.style.display = 'flex';
+            scoreModal.style.display = 'flex'; // Use flex to center
             quizForm.classList.add('quiz-blurred');
             submitQuizBtn.disabled = true;
             resetQuizBtn.disabled = false;
@@ -1072,11 +1112,12 @@
         }
         closeScoreModalBtn.addEventListener('click', closeModal);
         scoreModal.addEventListener('click', (event) => {
-            if (event.target === scoreModal) { closeModal(); }
+            if (event.target === scoreModal) { closeModal(); } // Close if clicking outside the modal content
         });
 
         quizForm.addEventListener('submit', checkQuiz);
         resetQuizBtn.addEventListener('click', resetQuiz);
+        // Initial reset if starting on the quiz slide (unlikely here but good practice)
         if (currentSlideIndex === quizSlideIndex) { resetQuiz(); }
 
     } else { console.error("Quiz elements or Modal elements not found."); }
@@ -1111,7 +1152,7 @@
 
         function handleFullscreenChange() {
             if (getFullscreenElement()) {
-                fullscreenBtn.textContent = '⛶'; // Icône simple pour sortir
+                fullscreenBtn.textContent = '⛶'; // Icône simple pour sortir (peut être ajustée)
                 fullscreenBtn.title = 'Quitter le plein écran';
                 slidesContainer.classList.add('is-fullscreen');
             } else {
@@ -1128,7 +1169,7 @@
 
     } else {
         console.error("Bouton plein écran ou conteneur de slides non trouvé.");
-        if(fullscreenBtn) fullscreenBtn.style.display = 'none';
+        if(fullscreenBtn) fullscreenBtn.style.display = 'none'; // Hide button if container missing
     }
     // --- Fin Script Mode Plein Écran ---
 
